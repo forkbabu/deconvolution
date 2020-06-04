@@ -219,11 +219,9 @@ class Delinear(nn.Module):
             deconv = self.running_deconv
 
         w = self.weight.view(-1, self.block) @ deconv
-        if self.bias is None:
-            b = - (w @ (X_mean.unsqueeze(1))).view(self.weight.shape[0], -1).sum(1)
-        else:
-            b = self.bias - (w @ (X_mean.unsqueeze(1))).view(self.weight.shape[0], -1).sum(1)
-
+        b = self.bias
+        if self.bias is not None:
+            b = b - (w @ (X_mean.unsqueeze(1))).view(self.weight.shape[0], -1).sum(1)
         w = w.view(self.weight.shape)
         return F.linear(input, w, b)
 
@@ -335,5 +333,4 @@ class FastDeconv(conv._ConvNd):
         x= F.conv2d(x, w, b, self.stride, self.padding, self.dilation, self.groups)
 
         return x
-
 
